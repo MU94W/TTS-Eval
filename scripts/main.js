@@ -3,22 +3,35 @@ var config = {
     baseurl:'data',
     exps:[
         {
-            name:'ABX',
+            type:'ABX',
             path:'ABX',
             styles:['Emphasis','Neutral'],
             files:['Test_1.wav','Test_3.wav','Test_6.wav','Test_15.wav','Test_17.wav'],
         },
         {
-            name:'MOS',
+            type:'MOS',
             path:'MOS',
             styles:['Natural','Neutral','Emphasis'],
             files:['Test_21.wav','Test_27.wav','Test_42.wav','Test_43.wav','Test_44.wav','Test_57.wav','Test_66.wav','Test_77.wav','Test_83.wav','Test_90.wav'],
         },
+        /*
+        {
+            type:'CM',
+            path:'CM',
+            styles:['Emphasis','Neutral','Question'],
+            files:{
+                'Emphasis': ['Test_21.wav','Test_22.wav','Test_27.wav','Test_31.wav','Test_34.wav'],
+                'Neutral': ['Test_181.wav','Test_187.wav','Test_287.wav','Test_288.wav','Test_296.wav'],
+                'Question': ['Test_qst_1.wav','Test_qst_6.wav','Test_qst_10.wav','Test_qst_13.wav','Test_qst_17.wav'],
+            },
+        }
+        */
     ],
 };
 // config object example
 
-var audio_prefix = 'aud_';
+var audio_prefix = "aud_";
+var select_prefix = "sel_";
 
 var linVector = function(start, stop, interval=1){
     var len = Math.floor((stop - start - 1)/interval) + 1;
@@ -52,33 +65,81 @@ var getRandomColor = function(){
         })('');
 };
 
-var createEvalHtml = function(dic,exp_order){
+var createAudHtml = function(dic,exp_order){
+    var exp_type = dic.type;
     var style_cnt = dic.styles.length;
-    var tmp = "";
-    for(var i = 0; i < style_cnt; i++){
-        tmp += "<div class='audio_wrapper'>";
-        tmp += "<audio src='' controls class='EVAL' id='" + audio_prefix + exp_order + "_" + i + "'></audio>";
-        tmp += "<select class='selector' id='sel_" + exp_order + "_" + i + "'>"
-                    + "<option value='1'> bad </option>"
-                    + "<option value='2'> poor </option>"
-                    + "<option value='3' selected> fair </option>"
-                    + "<option value='4'> good </option>"
-                    + "<option value='5'> excellent </option>"
-                + "</select>";
-        tmp += "</div>";
+    var audio_wrapper = "";
+    if(exp_type === "MOS" || exp_type === "ABX"){
+        audio_wrapper += "<div class='audio_wrapper'>";
+        for(var i = 0; i < style_cnt; i++){
+            audio_wrapper += "<div><audio src='' controls class='audio' id='" + audio_prefix + exp_order + "_" + i + "'></audio></div>";
+        }
+        audio_wrapper += "</div>";
+    }else if(exp_type === "CM"){
+        audio_wrapper += "<div class='audio_wrapper'>";
+        audio_wrapper +=    "<div><audio src='' controls class='audio' id='" + audio_prefix + exp_order + "'></audio></div>";
+        audio_wrapper += "</div>";
     }
+    return audio_wrapper;
+};
+
+var createSelHtml = function(dic,exp_order){
+    var exp_type = dic.type;
+    var style_cnt = dic.styles.length;
+    var select_wrapper = "";
+    if(exp_type === "MOS"){
+        select_wrapper += "<div class='select_wrapper'>";
+        for(var i = 0; i < style_cnt; i++){
+            select_wrapper += "<div>";
+            select_wrapper +=   "<select class='selector' id='" + select_prefix + exp_order + "_" + i + "'>"
+                                    + "<option value='1'> bad </option>"
+                                    + "<option value='2'> poor </option>"
+                                    + "<option value='3' selected> fair </option>"
+                                    + "<option value='4'> good </option>"
+                                    + "<option value='5'> excellent </option>"
+            select_wrapper +=   "</select>";
+            select_wrapper += "</div>";
+        }
+        select_wrapper += "</div>";
+    }else if(exp_type === "ABX"){
+        select_wrapper += "<div class='select_wrapper'>";
+        select_wrapper +=   "<select class='selector' id='" + select_prefix + exp_order + "'>";
+        select_wrapper +=       "<option value='A'> A </option>";
+        select_wrapper +=       "<option value='B'> B </option>";
+        select_wrapper +=   "</select>";
+        select_wrapper += "</div>";
+    }else if(exp_type === "CM"){
+        select_wrapper += "<div class='select_wrapper'><div>";
+        select_wrapper +=   "<select class='selector' id='" + select_prefix + exp_order + "'>";
+        for(var i = 0; i < style_cnt; i++){
+            select_wrapper +=   "<option value='" + dic.styles[i] + "'> " + dic.styles[i] + " </option>";
+        }
+        select_wrapper +=   "</select>";
+        select_wrapper += "</div>";
+    }else{
+        // raise NotImplError
+    }
+    return select_wrapper;
+};
+
+var createExpBodyHtml = function(dic,exp_order){
+    var style_cnt = dic.styles.length;
+    var audio_wrapper = createAudHtml(dic,exp_order);
+    var select_wrapper = createSelHtml(dic,exp_order);
+    var audio_select = "<div class='aud_sel_wrapper'>" + audio_wrapper + select_wrapper + "</div>";
     var str_prev = "<div class='btn' id='exp_p" + exp_order + "'>Prev</div>";
     var str_next = "<div class='btn' id='exp_n" + exp_order + "'>Next</div>";
     var str_step = "<div class='box_step' id='exp_s" + exp_order + "'>Audios:" + dic.files.length + "</div>";
     var str_btns = "<div class='btn_wrapper'>" + str_prev + str_step + str_next + "</div>"
     var str_okay = "<div class='btn' id='ok_" + exp_order + "'>Okay</div>";
-    var str = "<div class='EVAL_wrapper' id='exp_w" + exp_order + "'>" + str_btns + tmp + str_okay + "</div>";
+    var str = "<div class='EVAL_wrapper' id='exp_w" + exp_order + "'>" + str_btns + audio_select + str_okay + "</div>";
     return str;
 };
 
-var createEvalSelHtml = function(dic,exp_order){
-    var show_exp_name = "Exp " + exp_order + ": " + dic.name;
-    var str = "<div class='btn' id='sel_" + exp_order + "'>" + show_exp_name + "</div>";
+
+var createExpSelHtml = function(dic,exp_order){
+    var show_exp_type = "Exp " + exp_order + ": " + dic.type;
+    var str = "<div class='btn' id='" + select_prefix + exp_order + "'>" + show_exp_type + "</div>";
     return str;
 };
 
@@ -90,18 +151,18 @@ var addInnerHtml = function(func,dom_obj,dic,exp_order){
 var eval_selector = document.getElementById("eval_selector");
 (function(){
     for(var i = 0; i < config.exps.length; i++){
-        addInnerHtml(createEvalSelHtml,eval_selector,config.exps[i],i);
+        addInnerHtml(createExpSelHtml,eval_selector,config.exps[i],i);
     }
 })();
 
 var eval_container = document.getElementById("main_eval_container");
 (function(){
     for(var i = 0; i < config.exps.length; i++){
-        addInnerHtml(createEvalHtml,eval_container,config.exps[i],i);
+        addInnerHtml(createExpBodyHtml,eval_container,config.exps[i],i);
     }
 })();
 
-// global log all the exps' step
+// global log all exps' step
 var init_cnt = new Int32Array(config.exps.length);
 (function(){
     for(var i = 0; i < config.exps.length; i++){
@@ -137,10 +198,7 @@ var setAudioPath = function(exp_order, style_order, step){
     this_audio.src = audio_path;
 };
 
-var global_file_step;   // cache where i'm 
-
 var updateStepShow = function(exp_order, step){
-    global_file_step = step;
     var this_step_show_id = 'exp_s' + exp_order;
     var this_step_show = document.getElementById(this_step_show_id);
     this_step_show.innerHTML = (step+1) + ' / ' + config.exps[exp_order].files.length;
@@ -149,7 +207,7 @@ var updateStepShow = function(exp_order, step){
 // Button 'Exp n: ##': add event(onclick) handle
 (function(){
     for(var i = 0; i < config.exps.length; i++){
-        var sel_id = 'sel_' + i;
+        var sel_id = select_prefix + i;
         var sel_btn = document.getElementById(sel_id);
         sel_btn.show_id = 'exp_w' + i;
         sel_btn.onclick = function(){
@@ -228,7 +286,7 @@ var value_dic = {};
         btn_ok.onclick = function(){
             var styles = config.exps[this.exp_id].styles.length;
             for(var i = 0; i < styles; i++){
-                var sel_id = 'sel_' + this.exp_id + '_' + i;
+                var sel_id = select_prefix + this.exp_id + '_' + i;
                 var sel_val = document.getElementById(sel_id).value;
                 // put sel_val to value_arr
                 // get audio path and then split it
@@ -238,8 +296,8 @@ var value_dic = {};
                 var aud_path_len = aud_path.length;
                 var file_name = aud_path[aud_path_len - 1];
                 var style_name = aud_path[aud_path_len - 2];
-                var exp_name = aud_path[aud_path_len - 3];
-                value_dic[exp_name][file_name][style_name] = parseInt(sel_val);
+                var exp_path = aud_path[aud_path_len - 3];
+                value_dic[exp_path][file_name][style_name] = parseInt(sel_val);
             }
         };
     }

@@ -11,10 +11,6 @@ header > p {
     margin-bottom: 10px;
 }
 
-.wrapper {
-
-}
-
 .eval_container {
     width: 100%;
 }
@@ -50,18 +46,45 @@ header > p {
     min-width: 300px;
 }
 
+.aud_sel_wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
 .audio_wrapper {
     display: flex;
+    width: 75%;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.audio_wrapper > div {
+    display: flex;
     height: 50px;
+    justify-content: flex-start;
     align-items: center;
 }
 
-.audio_wrapper > audio {
-    width: 75%;
+.select_wrapper {
+    display: flex;
+    width: 25%;
+    flex-direction: column;
+    justify-content: space-around;
 }
 
-.audio_wrapper > select {
-    width: 25%;
+.select_wrapper > div {
+    display: flex;
+    height: 50px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+audio {
+    width: 98%;
+}
+
+select {
+    width: 98%;
 }
 
 .btn_wrapper {
