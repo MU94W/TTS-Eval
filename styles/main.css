@@ -1,0 +1,95 @@
+h1 {
+    font-size: 6em;
+}
+
+header > p {
+    text-align: center;
+    font-size: 8em;
+    font-family: sans-serif;
+    font-style: italic;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.wrapper {
+
+}
+
+.eval_container {
+    width: 100%;
+}
+
+.EVAL_sel_wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#eval_selector {
+    display: flex;
+    flex-wrap: wrap;
+    width: 400px;
+    margin-bottom: 5px;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#eval_selector > .btn {
+    width: 100px;
+    margin: 2px auto 2px auto;
+}
+
+.EVAL_wrapper {
+    display: none;  /* if turned on, it should be 'flex' */
+    flex-direction: column;
+    align-items: center;
+}
+
+.EVAL_wrapper > div {
+    width: 40%;
+    min-width: 300px;
+}
+
+.audio_wrapper {
+    display: flex;
+    height: 50px;
+    align-items: center;
+}
+
+.audio_wrapper > audio {
+    width: 75%;
+}
+
+.audio_wrapper > select {
+    width: 25%;
+}
+
+.btn_wrapper {
+    display: flex;
+    height: 3em;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn {
+    display: flex;
+    width: 30%;
+    height: 2em;
+    border: medium groove cyan;
+    align-items: center;
+    justify-content: space-around;
+}
+
+ .btn:hover {
+     border-color: cornflowerblue;
+ }
+
+ .box_step {
+    display: flex;
+    width: 30%;
+    height: 2em;
+    border-top: thin groove indianred;
+    border-bottom: thin groove indianred;
+    align-items: center;
+    justify-content: space-around;
+ }
