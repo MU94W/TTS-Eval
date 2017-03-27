@@ -1,4 +1,4 @@
-/*
+ /*
 var readTextFile = function(file){
     var rawFile = new XMLHttpRequest();
     rawFile.open('Get', file, true);
