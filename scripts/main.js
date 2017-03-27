@@ -429,11 +429,18 @@ myHeading.onclick = function(){
 var saveBtn = document.getElementById("save_result");
 saveBtn.onclick = function(){
     var not_done_lst = notDoneList();
-    if(not_done_lst.length == 0){
+    var exps_cnt = config.exps.length;
+    var unfinished = false;
+    for(var i = 0; i < exps_cnt; i++){
+        if(not_done_lst[i].length != 0){
+            unfinished = true;
+            break;
+        }
+    }
+    if(!unfinished){
         saveText(JSON.stringify(value_dic),"save.json");
     }else{
         var assert_info = "实验未完成！\n";
-        var exps_cnt = config.exps.length;
         for(var i = 0; i < exps_cnt; i++){
             var not_done_len = not_done_lst[i].length;
             if(not_done_len > 0){
