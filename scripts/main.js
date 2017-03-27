@@ -1,24 +1,3 @@
-<<<<<<< HEAD
- /*
-var readTextFile = function(file){
-    var rawFile = new XMLHttpRequest();
-    rawFile.open('Get', file, true);
-    rawFile.onreadystatechange = function(){
-        if (rawFile.readyState === 4 && rawFile.status == '200'){
-            var allText = rawFile.responseText;
-            alert(allText);
-        };
-    };
-    rawFile.send(null);
-};
-
-readTextFile('data/config.json')
-*/
-
-// config object
-=======
-// config object example
->>>>>>> 8d8e93fd893e58dca9f0b151866277631306581a
 var config = {
     baseurl:'data',
     exps:[
