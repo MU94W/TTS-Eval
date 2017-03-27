@@ -12,7 +12,10 @@ header > p {
 }
 
 .eval_container {
+    display: flex;
+    flex-direction: column;
     width: 100%;
+    align-items: center;
 }
 
 .EVAL_sel_wrapper {
@@ -35,6 +38,10 @@ header > p {
     margin: 2px auto 2px auto;
 }
 
+#expbodys_wrapper {
+    width: 400px;
+}
+
 .EVAL_wrapper {
     display: none;  /* if turned on, it should be 'flex' */
     flex-direction: column;
@@ -43,7 +50,7 @@ header > p {
 
 .EVAL_wrapper > div {
     width: 40%;
-    min-width: 300px;
+    min-width: 400px;
 }
 
 .aud_sel_wrapper {
@@ -90,6 +97,7 @@ select {
 .btn_wrapper {
     display: flex;
     height: 3em;
+    width: 400px;
     justify-content: space-between;
     align-items: center;
 }
@@ -107,12 +115,25 @@ select {
      border-color: cornflowerblue;
  }
 
- .box_step {
+ .btn_single {
+     width: 100%;
+ }
+
+ .box_info {
     display: flex;
-    width: 30%;
     height: 2em;
+    width: 100%;
     border-top: thin groove indianred;
     border-bottom: thin groove indianred;
     align-items: center;
     justify-content: space-around;
+ }
+
+ .box_step {
+     width: 30%;
+ }
+
+ #save_result {
+     justify-content: space-around;
+     width: 400px;
  }
