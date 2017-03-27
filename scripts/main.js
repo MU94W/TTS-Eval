@@ -197,6 +197,22 @@ var log_is_done_lst = new Array(config.exps.length);
     }
 })();
 
+var notDoneList = function(){
+    var not_done_lst = [];
+    var exps_cnt = config.exps.length;
+    for(var i = 0; i < exps_cnt; i++){
+        var files_cnt = config.exps[i].files.length;
+        not_done_lst.push([]);
+        for(var j = 0; j < files_cnt; j++){
+            if(log_is_done_lst[i][j] != 1){
+                not_done_lst[i].push(j);
+            }
+        }
+    }
+    return not_done_lst;
+}
+
+
 // the audio_path is selected according to the permutated style order.
 var getAudioPath = function(exp_order, style_order, step){
     var this_type = config.exps[exp_order].type;
@@ -367,6 +383,7 @@ var getExpFileStyle = function(aud_id){
                     var exp_path = aud_path[aud_path_len - 3];
                     value_dic[exp_path][file_name][style_name] = parseInt(sel_val);
                 }
+                log_is_done_lst[this.exp_id][init_cnt[this.exp_id]] = 1;
             };
         }else if(exp_type == "ABX"){
             btn_ok.onclick = function(){
@@ -386,6 +403,7 @@ var getExpFileStyle = function(aud_id){
                 }else{
                     value_dic[exp_path][file_name]["X"] = 0;
                 }
+                log_is_done_lst[this.exp_id][init_cnt[this.exp_id]] = 1;
             };
         }else if(exp_type == "CM"){
             btn_ok.onclick = function(){
@@ -397,6 +415,7 @@ var getExpFileStyle = function(aud_id){
                 console.log(file_name);
                 console.log(style_name);
                 value_dic[exp_path][style_name+'/'+file_name] = [style_name, sel_val];
+                log_is_done_lst[this.exp_id][init_cnt[this.exp_id]] = 1;
             };
         }
     }
@@ -409,5 +428,22 @@ myHeading.onclick = function(){
 
 var saveBtn = document.getElementById("save_result");
 saveBtn.onclick = function(){
-    saveText(JSON.stringify(value_dic),"save.json");
+    var not_done_lst = notDoneList();
+    if(not_done_lst.length == 0){
+        saveText(JSON.stringify(value_dic),"save.json");
+    }else{
+        var assert_info = "实验未完成！\n";
+        var exps_cnt = config.exps.length;
+        for(var i = 0; i < exps_cnt; i++){
+            var not_done_len = not_done_lst[i].length;
+            if(not_done_len > 0){
+                assert_info += "Exp " + i + " :";
+                for(var j = 0; j < not_done_len; j++){
+                    assert_info += " " + (not_done_lst[i][j]+1) + ",";
+                }
+                assert_info += "\n";
+            }
+        }
+        alert(assert_info);
+    }
 }
