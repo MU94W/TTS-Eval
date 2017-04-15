@@ -26,6 +26,15 @@ if __name__ == "__main__":
                 file_path = os.path.join(exp_path,stl)
                 for fnm in os.listdir(file_path):
                     exp_dic["files"].append(stl + "/" + fnm)
+        elif(exp[:4] == "rABX"):
+            exp_dic["type"] = "rABX"
+            exp_dic["files"] = []
+            for stl in exp_dic["styles"]:
+                file_path = os.path.join(exp_path,stl)
+                tmp_lst = []
+                for fnm in os.listdir(file_path):
+                    tmp_lst.append("data/" + exp + "/" + stl + "/" + fnm)
+                exp_dic["files"].append(tmp_lst)
         else:
             pass
         json_data["exps"].append(exp_dic)
