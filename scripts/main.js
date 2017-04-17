@@ -533,8 +533,10 @@ var getExpFileStyle = function(aud_id){
 (function(){
     for(var i = 0; i < config.exps.length; i++){
         var btn_ok_id = 'ok_' + i;
+        var btn_n_id = 'exp_n' + i;
         var btn_ok = document.getElementById(btn_ok_id);
         btn_ok.exp_id = i;
+        btn_ok.next_id = btn_n_id;
         var exp_type = config.exps[i].type;
         if(exp_type == "MOS"){
             btn_ok.onclick = function(){
@@ -554,6 +556,10 @@ var getExpFileStyle = function(aud_id){
                     value_dic[exp_path][file_name][style_name] = parseInt(sel_val);
                 }
                 log_is_done_lst[this.exp_id][init_cnt[this.exp_id]] = 1;
+
+                var btn_n = document.getElementById(this.next_id);
+                btn_n.click();
+ 
             };
         }else if(exp_type == "ABX"){
             btn_ok.onclick = function(){
@@ -574,6 +580,10 @@ var getExpFileStyle = function(aud_id){
                     value_dic[exp_path][file_name]["X"] = 0;
                 }
                 log_is_done_lst[this.exp_id][init_cnt[this.exp_id]] = 1;
+
+                var btn_n = document.getElementById(this.next_id);
+                btn_n.click();
+ 
             };
         }else if(exp_type == "CM"){
             btn_ok.onclick = function(){
@@ -586,6 +596,10 @@ var getExpFileStyle = function(aud_id){
                 console.log(style_name);
                 value_dic[exp_path][style_name+'/'+file_name] = [style_name, sel_val];
                 log_is_done_lst[this.exp_id][init_cnt[this.exp_id]] = 1;
+
+                var btn_n = document.getElementById(this.next_id);
+                btn_n.click();
+ 
             };
         }else if(exp_type == "rABX"){
             btn_ok.onclick = function(){
@@ -602,6 +616,9 @@ var getExpFileStyle = function(aud_id){
                 styles[2] = [X_style, sel_val];
                 value_dic[exp_path][init_cnt[this.exp_id]] = styles;
                 log_is_done_lst[this.exp_id][init_cnt[this.exp_id]] = 1;
+
+                var btn_n = document.getElementById(this.next_id);
+                btn_n.click();
  
             };
         }
