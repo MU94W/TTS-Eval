@@ -44,7 +44,7 @@ var createAudHtml = function(dic,exp_order){
     var exp_type = dic.type;
     var style_cnt = dic.styles.length;
     var audio_wrapper = "";
-    if(exp_type === "MOS" || exp_type === "ABX" || exp_type === "mMOS"){
+    if(exp_type === "MOS" || exp_type === "ABX" || exp_type === "sMOS"){
         audio_wrapper += "<div class='audio_wrapper'>";
         for(var i = 0; i < style_cnt; i++){
             audio_wrapper += "<div><audio src='' controls class='audio' id='" + audio_prefix + exp_order + "_" + i + "'></audio></div>";
@@ -68,7 +68,7 @@ var createSelHtml = function(dic,exp_order){
     var exp_type = dic.type;
     var style_cnt = dic.styles.length;
     var select_wrapper = "";
-    if(exp_type === "MOS" || exp_type === "mMOS"){
+    if(exp_type === "MOS" || exp_type === "sMOS"){
         select_wrapper += "<div class='select_wrapper'>";
         for(var i = 0; i < style_cnt; i++){
             select_wrapper += "<div>";
@@ -125,11 +125,11 @@ var createExpBodyHtml = function(dic,exp_order){
     var str_btns = "<div class='btn_wrapper'>" + str_prev + str_step + str_next + "</div>"
     var str_okay = "<div class='btn_wrapper'>" + "<div class='btn btn_single' id='ok_" + exp_order + "'>Okay</div></div>";
 
-    // 现在临时添加mMOS的standard音频， dirty的做法， 需要重构
-    if(dic.type === "mMOS"){
+    // 现在临时添加sMOS的standard音频， dirty的做法， 需要重构
+    if(dic.type === "sMOS"){
         var standard_audio = "";
         standard_audio += "<div class='audio_wrapper'>";
-        standard_audio +=    "<div><audio src='" + dic.standard + "' controls class='audio' class='standard'></audio></div>";
+        standard_audio +=    "<div><audio src='" + dic.standard + "' controls class='audio' id='" + audio_prefix + exp_order + '_s' + "'></audio></div>";
         standard_audio += "</div>";
     }else{
         var standard_audio = "";
@@ -310,7 +310,7 @@ var style_perm_lst = new Array(config.exps.length);
 // the audio_path is selected according to the permutated style order.
 var getAudioPath = function(exp_order, style_order, step){
     var this_type = config.exps[exp_order].type;
-    if(this_type == "ABX" || this_type == "MOS" || this_type == "mMOS"){
+    if(this_type == "ABX" || this_type == "MOS" || this_type == "sMOS"){
         var rand_style_order = style_perm_lst[exp_order][step][style_order];
         return config.baseurl + '/' + config.exps[exp_order].path
                 + '/' + config.exps[exp_order].styles[rand_style_order]
@@ -427,7 +427,7 @@ var notDoneList = function(){
         // add this.exp_order, or else this.onclick cant access var i.
         btn_p.exp_order = i;
         btn_n.exp_order = i;
-        if(this_type == "ABX" || this_type == "MOS" || this_type == "mMOS"){
+        if(this_type == "ABX" || this_type == "MOS" || this_type == "sMOS"){
             btn_p.onclick = function(){
                 var exp_order = this.exp_order;
                 var step = init_cnt[exp_order];
@@ -437,6 +437,12 @@ var notDoneList = function(){
                     for(var j = 0; j < config.exps[exp_order].styles.length; j++){
                         setAudioPath(exp_order, j, step);
                         updateStepShow(exp_order, step);
+                    }
+                    // 更改sMOS的标准对比音频
+                    if(config.exps[exp_order].type == "sMOS"){
+                        var standard_audio_id = audio_prefix + exp_order + '_s';
+                        var standard_audio = document.getElementById(standard_audio_id);
+                        standard_audio.src = config.baseurl + '/' + config.exps[exp_order].path + '/standard/' + audi_lst[exp_order][perm_lst[exp_order][step]];
                     }
                     init_cnt[exp_order] = step;
                 }
@@ -450,6 +456,12 @@ var notDoneList = function(){
                     for(var j = 0; j < config.exps[exp_order].styles.length; j++){
                         setAudioPath(exp_order, j, step);
                         updateStepShow(exp_order, step);
+                    }
+                    // 更改sMOS的标准对比音频
+                    if(config.exps[exp_order].type == "sMOS"){
+                        var standard_audio_id = audio_prefix + exp_order + '_s';
+                        var standard_audio = document.getElementById(standard_audio_id);
+                        standard_audio.src = config.baseurl + '/' + config.exps[exp_order].path + '/standard/' + audi_lst[exp_order][perm_lst[exp_order][step]];
                     }
                     init_cnt[exp_order] = step;
                 }
@@ -519,7 +531,7 @@ var value_dic = {};
     for(var i = 0; i < config.exps.length; i++){
         value_dic[config.exps[i].path] = {};
         var this_type = config.exps[i].type;
-        if(this_type == "ABX" || this_type == "MOS" || this_type == "mMOS"){
+        if(this_type == "ABX" || this_type == "MOS" || this_type == "sMOS"){
             for(var fl = 0; fl < config.exps[i].files.length; fl++){
                 value_dic[config.exps[i].path][config.exps[i].files[fl]] = {};
             }
@@ -552,7 +564,7 @@ var getExpFileStyle = function(aud_id){
         btn_ok.exp_id = i;
         btn_ok.next_id = btn_n_id;
         var exp_type = config.exps[i].type;
-        if(exp_type == "MOS" || exp_type == "mMOS"){
+        if(exp_type == "MOS" || exp_type == "sMOS"){
             btn_ok.onclick = function(){
                 var styles = config.exps[this.exp_id].styles.length;
                 for(var i = 0; i < styles; i++){

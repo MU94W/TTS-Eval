@@ -11,13 +11,7 @@ if __name__ == "__main__":
         exp_dic["info"] = ""
         exp_path = os.path.join("./data", exp)
         ###
-        if exp[:4] == "mMOS":
-            standard_lst = []
-            for fnm in os.listdir(os.path.join(exp_path, "standard")):
-                standard_lst.append(fnm)
-            standard_fnm = standard_lst[0]  # 只用第一个
-            exp_dic["standard"] = os.path.join(exp_path, "standard", standard_fnm)
-
+        if exp[:4] == "sMOS":
             for stl in os.listdir(exp_path):
                 if stl != "standard":
                     exp_dic["styles"].append(stl)
@@ -27,11 +21,11 @@ if __name__ == "__main__":
         ###
 
         ###
-        if(exp[:3] == "ABX" or exp[:3] == "MOS" or exp[:4] == "mMOS"):
-            if exp[:4] != "mMOS":
+        if(exp[:3] == "ABX" or exp[:3] == "MOS" or exp[:4] == "sMOS"):
+            if exp[:4] != "sMOS":
                 exp_dic["type"] = exp[:3]
             else:
-                exp_dic["type"] = "mMOS"
+                exp_dic["type"] = "sMOS"
             exp_dic["files"] = []
             style = exp_dic["styles"][0]
             file_path = os.path.join(exp_path,style)
