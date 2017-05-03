@@ -44,7 +44,7 @@ var createAudHtml = function(dic,exp_order){
     var exp_type = dic.type;
     var style_cnt = dic.styles.length;
     var audio_wrapper = "";
-    if(exp_type === "MOS" || exp_type === "ABX"){
+    if(exp_type === "MOS" || exp_type === "ABX" || exp_type === "mMOS"){
         audio_wrapper += "<div class='audio_wrapper'>";
         for(var i = 0; i < style_cnt; i++){
             audio_wrapper += "<div><audio src='' controls class='audio' id='" + audio_prefix + exp_order + "_" + i + "'></audio></div>";
@@ -68,7 +68,7 @@ var createSelHtml = function(dic,exp_order){
     var exp_type = dic.type;
     var style_cnt = dic.styles.length;
     var select_wrapper = "";
-    if(exp_type === "MOS"){
+    if(exp_type === "MOS" || exp_type === "mMOS"){
         select_wrapper += "<div class='select_wrapper'>";
         for(var i = 0; i < style_cnt; i++){
             select_wrapper += "<div>";
@@ -124,12 +124,26 @@ var createExpBodyHtml = function(dic,exp_order){
     var str_step = "<div class='box_info box_step' id='exp_s" + exp_order + "'>Steps:" + dic.files.length + "</div>";
     var str_btns = "<div class='btn_wrapper'>" + str_prev + str_step + str_next + "</div>"
     var str_okay = "<div class='btn_wrapper'>" + "<div class='btn btn_single' id='ok_" + exp_order + "'>Okay</div></div>";
+
+    // 现在临时添加mMOS的standard音频， dirty的做法， 需要重构
+    if(dic.type === "mMOS"){
+        var standard_audio = "";
+        standard_audio += "<div class='audio_wrapper'>";
+        standard_audio +=    "<div><audio src='" + dic.standard + "' controls class='audio' class='standard'></audio></div>";
+        standard_audio += "</div>";
+    }else{
+        var standard_audio = "";
+    }
+    
     if(dic.info.length == 0){
-        var str = "<div class='EVAL_wrapper' id='exp_w" + exp_order + "'>" + str_btns + audio_select + str_okay + "</div>";
+        //var str = "<div class='EVAL_wrapper' id='exp_w" + exp_order + "'>" + str_btns + audio_select + str_okay + "</div>";
+        var str = "<div class='EVAL_wrapper' id='exp_w" + exp_order + "'>" + str_btns + standard_audio + audio_select + str_okay + "</div>";
     }else{
         var str_info = "<div class='btn_wrapper'>" + "<div class='box_info'>" + dic.info + "</div></div>";
-        var str = "<div class='EVAL_wrapper' id='exp_w" + exp_order + "'>" + str_btns + str_info + audio_select + str_okay + "</div>";
+        //var str = "<div class='EVAL_wrapper' id='exp_w" + exp_order + "'>" + str_btns + str_info + audio_select + str_okay + "</div>";
+        var str = "<div class='EVAL_wrapper' id='exp_w" + exp_order + "'>" + str_btns + str_info + standard_audio + audio_select + str_okay + "</div>";
     }
+
     return str;
 };
 
@@ -296,7 +310,7 @@ var style_perm_lst = new Array(config.exps.length);
 // the audio_path is selected according to the permutated style order.
 var getAudioPath = function(exp_order, style_order, step){
     var this_type = config.exps[exp_order].type;
-    if(this_type == "ABX" || this_type == "MOS"){
+    if(this_type == "ABX" || this_type == "MOS" || this_type == "mMOS"){
         var rand_style_order = style_perm_lst[exp_order][step][style_order];
         return config.baseurl + '/' + config.exps[exp_order].path
                 + '/' + config.exps[exp_order].styles[rand_style_order]
@@ -413,7 +427,7 @@ var notDoneList = function(){
         // add this.exp_order, or else this.onclick cant access var i.
         btn_p.exp_order = i;
         btn_n.exp_order = i;
-        if(this_type == "ABX" || this_type == "MOS"){
+        if(this_type == "ABX" || this_type == "MOS" || this_type == "mMOS"){
             btn_p.onclick = function(){
                 var exp_order = this.exp_order;
                 var step = init_cnt[exp_order];
@@ -505,7 +519,7 @@ var value_dic = {};
     for(var i = 0; i < config.exps.length; i++){
         value_dic[config.exps[i].path] = {};
         var this_type = config.exps[i].type;
-        if(this_type == "ABX" || this_type == "MOS"){
+        if(this_type == "ABX" || this_type == "MOS" || this_type == "mMOS"){
             for(var fl = 0; fl < config.exps[i].files.length; fl++){
                 value_dic[config.exps[i].path][config.exps[i].files[fl]] = {};
             }
@@ -538,7 +552,7 @@ var getExpFileStyle = function(aud_id){
         btn_ok.exp_id = i;
         btn_ok.next_id = btn_n_id;
         var exp_type = config.exps[i].type;
-        if(exp_type == "MOS"){
+        if(exp_type == "MOS" || exp_type == "mMOS"){
             btn_ok.onclick = function(){
                 var styles = config.exps[this.exp_id].styles.length;
                 for(var i = 0; i < styles; i++){

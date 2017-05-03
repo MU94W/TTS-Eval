@@ -10,10 +10,28 @@ if __name__ == "__main__":
         exp_dic["styles"] = []
         exp_dic["info"] = ""
         exp_path = os.path.join("./data", exp)
-        for stl in os.listdir(exp_path):
-            exp_dic["styles"].append(stl)
-        if(exp[:3] == "ABX" or exp[:3] == "MOS"):
-            exp_dic["type"] = exp[:3]
+        ###
+        if exp[:4] == "mMOS":
+            standard_lst = []
+            for fnm in os.listdir(os.path.join(exp_path, "standard")):
+                standard_lst.append(fnm)
+            standard_fnm = standard_lst[0]  # 只用第一个
+            exp_dic["standard"] = os.path.join(exp_path, "standard", standard_fnm)
+
+            for stl in os.listdir(exp_path):
+                if stl != "standard":
+                    exp_dic["styles"].append(stl)
+        else:
+            for stl in os.listdir(exp_path):
+                exp_dic["styles"].append(stl)
+        ###
+
+        ###
+        if(exp[:3] == "ABX" or exp[:3] == "MOS" or exp[:4] == "mMOS"):
+            if exp[:4] != "mMOS":
+                exp_dic["type"] = exp[:3]
+            else:
+                exp_dic["type"] = "mMOS"
             exp_dic["files"] = []
             style = exp_dic["styles"][0]
             file_path = os.path.join(exp_path,style)
@@ -37,6 +55,7 @@ if __name__ == "__main__":
                 exp_dic["files"].append(tmp_lst)
         else:
             pass
+        ###
         json_data["exps"].append(exp_dic)
 
     json_str += str(json_data) + ";"
