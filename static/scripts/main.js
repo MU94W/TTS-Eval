@@ -34,10 +34,18 @@ var getRandomColor = function(){
 };
 
 var saveText = function(text, filename){
+    var data_blob = new Blob([text], {type: 'application/json'});
+    var url = URL.createObjectURL(data_blob);
     var a = document.createElement('a');
-    a.setAttribute('href', 'data:text/plain;charset=utf-u,'+encodeURIComponent(text));
-    a.setAttribute('download', filename);
+    a.style = "display: none"
+    a.href = URL.createObjectURL(data_blob);
+    a.download = filename;
+    document.body.appendChild(a);
     a.click();
+    setTimeout(function(){
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }, 100);
 };
 
 var createAudHtml = function(dic,exp_order){

@@ -121,7 +121,7 @@ select {
 
  .box_info {
     display: flex;
-    height: 2em;
+    min-height: 2em;
     width: 100%;
     border-top: thin groove indianred;
     border-bottom: thin groove indianred;
