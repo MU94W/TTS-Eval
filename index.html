@@ -3,31 +3,47 @@
     <title>TTS Evaluation System</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
     <link rel="stylesheet" href="static/styles/main.css">
 </head>
 
 <body>
 
-    <header>
-        <p>TTS</p>
-    </header>
-
-    <div class="wrapper">
-        <div id="main_eval_container" class="eval_container">
-            <div class="eval_sel_wrapper"><div id="eval_selector"></div></div>
-            <div id="expbodys_wrapper"></div>
-            <div class="btn_wrapper"><div id="save_result" class="btn btn_single">Save Result</div></div>
+    <div id="tts-eval-app">
+        <div id="exp-sel-bar" style="display: flex">
+            <div v-for="exp in exp_list">
+                <div style="width: 100px; border: solid 1px; margin: 1px; text-align: center">
+                    <input type="radio" :value="exp" v-model="cur_exp">
+                    {{ exp.name }}
+                </div>
+            </div>
+        </div>
+        <div id="ep-sel-bar">
+            <input type="button" value="Prev" @click="prevEp">
+            {{ cur_exp.name }}
+            -
+            {{ cur_exp.cur_ep_id + 1 }} / {{ cur_exp.tot_eps_num}}
+            <input type="button" value="Next" @click="nextEp">
+        </div>
+        <div id="exp-body">
+            <div v-if="cur_exp.type === 'MOS'">
+                <div v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id]">
+                    <audio :src="audio.src" controls>{{audio.src}}</audio>
+                    <select v-model="audio.eval">
+                        <option value="bad">bad</option>
+                        <option value="poor">poor</option>
+                        <option value="fair">fair</option>
+                        <option value="good">good</option>
+                        <option value="excellent">excellent</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="submit-bar">
+            <input type="button" value="Submit">
         </div>
     </div>
+    <script src="static/scripts/tts-eval-app.js"></script>
 
-    <footer>
-
-    </footer>
-
-<script src="static/scripts/config.js"></script>
-<script src="static/scripts/common.js"></script>
-<script src="static/scripts/preprocess.js"></script>
-<script src="static/scripts/ttsbody.js"></script>
-<script src="static/scripts/mainJQ.js"></script>
 </body>
 </html>
