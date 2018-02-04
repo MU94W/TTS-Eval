@@ -1,31 +1,35 @@
+var myHeading = document.querySelector("p");
+myHeading.onclick = function(){
+    this.style.color = getRandomColor();
+};
+
 var app = new Vue({
     el: "#tts-eval-app",
     data: {
-        exp_list: [
-            {name: "MOS0",
-             type: "MOS",
-             eps_list: [[{src: "static/data/ABX0/model_0_A/0.mp3", eval: "fair"},
-                        {src: "static/data/ABX0/model_0_A/1.mp3", eval: "fair"}],
-                        [{src: "static/data/ABX0/model_0_A/2.mp3", eval: "fair"},
-                        {src: "static/data/ABX0/model_0_A/3.mp3", eval: "fair"}],
-                        [{src: "static/data/ABX0/model_0_A/4.mp3", eval: "fair"},
-                        {src: "static/data/ABX0/model_0_A/5.mp3", eval: "fair"}]],
-             cur_ep_id: 0,
-             tot_eps_num: 3,
-             },
-            {name: "MOS1",
-             type: "MOS",
-             eps_list: [[{src: "static/data/ABX0/model_0_A/0.mp3", eval: "fair"},
-                        {src: "static/data/ABX0/model_0_A/1.mp3", eval: "fair"}],
-                        [{src: "static/data/ABX0/model_0_A/2.mp3", eval: "fair"},
-                        {src: "static/data/ABX0/model_0_A/3.mp3", eval: "fair"}],
-                        [{src: "static/data/ABX0/model_0_A/4.mp3", eval: "fair"},
-                        {src: "static/data/ABX0/model_0_A/5.mp3", eval: "fair"}]],
-             cur_ep_id: 0,
-             tot_eps_num: 3,
-             }
-        ],
-        cur_exp: {},
+        server: "http://localhost",
+        exp_list: config,   // 使用config.js的配置
+        defaultNP: "NP",
+        cur_exp: {
+            // 避免未定义情况出现
+            name: null,
+            cur_ep_id: null,
+            tot_eps_num: null,
+        },
+    },
+    beforeCreate: function(){
+        console.log("实验配置载入中......");
+    },
+    created: function(){
+        console.log("实验配置已载入！");
+        console.log("打乱实验顺序......");
+        for (var exp_id = 0; exp_id < this.exp_list.length; exp_id++){
+            // 打乱每个子实验中，不同example间的顺序
+            permutation(this.exp_list[exp_id].eps_list);
+            for (var ep_id = 0; ep_id < this.exp_list[exp_id].eps_list.length; ep_id++){
+                // 打乱当前子实验的某条example中的各条待比较音频的顺序
+                permutation(this.exp_list[exp_id].eps_list[ep_id]);
+            }
+        }
     },
     methods: {
         prevEp: function(){
@@ -39,6 +43,15 @@ var app = new Vue({
                 this.cur_exp.cur_ep_id += 1;
             }
             return;
+        },
+        convertNumToABC: function(num){
+            return String.fromCodePoint(num + 65);
+        },
+        saveResult: function(){
+            saveText(JSON.stringify(this.exp_list),"save.json");
+        },
+        sendResult: function(){
+            sendText(JSON.stringify(this.exp_list), this.server)
         }
     }
 })

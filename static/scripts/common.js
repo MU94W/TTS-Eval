@@ -1,12 +1,3 @@
-var linVector = function(start, stop, interval=1){
-    var len = Math.floor((stop - start - 1)/interval) + 1;
-    var ret = new Int32Array(len);
-    for(var i = 0; i < len; i++){
-        ret[i] = start + i * interval
-    }
-    return ret;
-};
-
 // arr -> reference
 var permutation = function(arr){
     var len = arr.length;
@@ -35,7 +26,7 @@ var saveText = function(text, filename){
     var url = URL.createObjectURL(data_blob);
     var a = document.createElement('a');
     a.style = "display: none"
-    a.href = URL.createObjectURL(data_blob);
+    a.href = url
     a.download = filename;
     document.body.appendChild(a);
     a.click();
@@ -45,3 +36,52 @@ var saveText = function(text, filename){
     }, 100);
 };
 
+/*
+function createCORSRequest(method, url) {
+    var xhr = new XMLHttpRequest();
+    if ("withCredentials" in xhr) {
+  
+      // Check if the XMLHttpRequest object has a "withCredentials" property.
+      // "withCredentials" only exists on XMLHTTPRequest2 objects.
+      xhr.open(method, url, true);
+  
+    } else if (typeof XDomainRequest != "undefined") {
+  
+      // Otherwise, check if XDomainRequest.
+      // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
+      xhr = new XDomainRequest();
+      xhr.open(method, url);
+  
+    } else {
+  
+      // Otherwise, CORS is not supported by the browser.
+      xhr = null;
+  
+    }
+    return xhr;
+}
+*/
+
+var sendText = function(text, url){
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.onreadystatechange = function(){
+        if (this.readyState == 4 && this.status == 200) {
+           // Typical action to be performed when the document is ready:
+           // document.getElementById("demo").innerHTML = xhttp.responseText;
+           alert("Succeeded.");
+        }
+    };
+    xhr.send(text);
+}
+
+/*
+var sendText = function(text, url){
+    var xhr = createCORSRequest("POST", url);
+    if (!xhr) {
+        throw new Error('CORS not supported');
+        console.log('CORS not supported');
+    }
+    xhr.send(text);
+}
+*/

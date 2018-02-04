@@ -2,34 +2,44 @@
 <head>
     <title>TTS Evaluation System</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
     <link rel="stylesheet" href="static/styles/main.css">
 </head>
 
 <body>
 
+    <header>
+        <p>TTS</p>
+    </header>
+
     <div id="tts-eval-app">
-        <div id="exp-sel-bar" style="display: flex">
+        <div id="exp-sel-bar">
             <div v-for="exp in exp_list">
-                <div style="width: 100px; border: solid 1px; margin: 1px; text-align: center">
+                <div class="exp-sel-button">
                     <input type="radio" :value="exp" v-model="cur_exp">
                     {{ exp.name }}
                 </div>
             </div>
         </div>
-        <div id="ep-sel-bar">
-            <input type="button" value="Prev" @click="prevEp">
-            {{ cur_exp.name }}
-            -
-            {{ cur_exp.cur_ep_id + 1 }} / {{ cur_exp.tot_eps_num}}
-            <input type="button" value="Next" @click="nextEp">
+        <div id="ep-sel-bar" class="btn_wrapper">
+            <input class="btn" type="button" value="Prev" @click="prevEp">
+            <span v-if="cur_exp.name">
+                {{ cur_exp.name }} - {{ cur_exp.cur_ep_id + 1 }} / {{ cur_exp.tot_eps_num}}
+            </span>
+            <span v-else>
+                ExpName - 0 / 0
+            </span>
+            <input class="btn" type="button" value="Next" @click="nextEp">
+        </div>
+        <div id="exp-guide">
+            {{ cur_exp.guide }}
         </div>
         <div id="exp-body">
+
             <div v-if="cur_exp.type === 'MOS'">
-                <div v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id]">
-                    <audio :src="audio.src" controls>{{audio.src}}</audio>
-                    <select v-model="audio.eval">
+                <div class="aud_sel_wrapper" v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id]">
+                    <audio class="audio_wrapper" controls="controls" :src="audio.src"></audio>
+                    <select class="select_wrapper" v-model="audio.eval">
                         <option value="bad">bad</option>
                         <option value="poor">poor</option>
                         <option value="fair">fair</option>
@@ -38,11 +48,50 @@
                     </select>
                 </div>
             </div>
+
+            <div v-else-if="cur_exp.type === 'ABX'">
+                <div class="aud_sel_wrapper">
+                    <div class="audio_wrapper">
+                        <template v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id]">
+                            <audio controls="controls" :src="audio.src"></audio>
+                        </template>
+                    </div>
+                    <select class="select_wrapper" v-model="cur_exp.eps_eval_list[cur_exp.cur_ep_id]">
+                        <template v-for="(audio, idx) in cur_exp.eps_list[cur_exp.cur_ep_id]">
+                            <option :value="audio.src">{{ convertNumToABC(idx) }}</option>
+                        </template>
+                        <!-- 这里如果用 value="NP"，会出现不可预期的错误：value可能没有任何值 -->
+                        <option :value="defaultNP">NP</option>
+                    </select>
+                </div>
+            </div>
+
+            <div v-else-if="cur_exp.type === 'CM'">
+                <div class="aud_sel_wrapper" v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id]">
+                    <audio class="audio_wrapper" controls="controls" :src="audio.src"></audio>
+                    <select class="select_wrapper" v-model="audio.eval">
+                        <template v-for="style in cur_exp.valid_styles_list">
+                            <option :value="style">{{ style }}</option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 新实验类型，请写出html代码
+            <div v-else-if="cur_exp.type === 'newType'">
+                ...
+            </div>
+            -->
+
         </div>
-        <div id="submit-bar">
-            <input type="button" value="Submit">
+        <div id="submit-bar" class="btn_wrapper">
+            <input class="btn" type="button" value="Save" @click="saveResult">
+            <input class="btn" type="button" value="Submit" @click="sendResult">
         </div>
     </div>
+
+    <script src="static/scripts/config.js"></script>
+    <script src="static/scripts/common.js"></script>
     <script src="static/scripts/tts-eval-app.js"></script>
 
 </body>
