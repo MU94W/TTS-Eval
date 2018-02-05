@@ -64,21 +64,15 @@ header > p {
     display: flex;
     width: 30%;
     height: 2em;
-    border: medium groove cyan;
     align-items: center;
     justify-content: space-around;
 }
 
- .btn:hover {
-     border-color: cornflowerblue;
- }
-
- .box_info {
+.box_info {
     display: flex;
     min-height: 2em;
     width: 100%;
     border-top: thin groove indianred;
     border-bottom: thin groove indianred;
     align-items: center;
-    justify-content: space-around;
- }
+}

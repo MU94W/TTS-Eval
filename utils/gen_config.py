@@ -1,114 +1,122 @@
-import os, json, sys
+import os, json, sys, copy, codecs
+from six.moves import xrange
 
-info_nm = "info.txt"
-transcript_nm = "transcript.txt"
-not_style_filename = [info_nm, transcript_nm]
 
-basic_info = {
-        "ABX": "听音频，选择最符合**目标**的音频。<br>上方音频为A，下方为B。",
-        "CM": "听音频，选择该音频所属的类别。",
-        "MOS": "听音频，依据**目标**打分。"
-        }
+DEFAULT_DATA_ROOT = "static/data"
+DEFAULT_SCRIPTS_ROOT = "static/scripts"
+DEFAULT_GUIDE_NM = "guide.txt"
+DEFAULT_TRANS_NM = "transcript.txt"
+DEFAULT_STYLE_NM = "style.txt"
+DEFAULT_GUIDE = {
+    "ABX": "听音频，选择自然度更高的语音。<br>上方音频为A，下方为B。",
+    "CM": "听音频，选择该音频所属的类别。",
+    "MOS": "听音频，依据语音自然度高低打分。"
+    }
+DEFAULT_CONFIG = {
+    "name": "",
+    "type": "",
+    "guide": "",
+    "cur_ep_id": 1,
+    "tot_eps_num": 0,
+    "eps_list": [],
+    }
 
-def parse_info(path, exp_type):
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            ob = f.read().split("\n")[0]
-        info = basic_info.get(exp_type) + "<br>" + "目标：{}".format(ob)
-        return info
+
+def getSubPath(path):
+    for sub_name in os.listdir(path):
+        yield os.path.join(path, sub_name)
+
+
+def getValidSubDirs(path):
+    return sorted([sub_path for sub_path in getSubPath(path) if os.path.isdir(sub_path)])
+
+
+def getGuide(path, exp_type):
+    guide_path = os.path.join(path, DEFAULT_GUIDE_NM)
+    if os.path.exists(guide_path):
+        with codecs.open(guide_path, "r", "utf-8") as f:
+            return f.read().strip()
     else:
-        return basic_info.get(exp_type)
+        return DEFAULT_GUIDE.get(exp_type, "")
 
-def parse_transcript(path, filelst):
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            trans = f.read().split("\n")
-        if trans[-1] == "":
-            trans = trans[:-1]
-        trans_dic = dict([item.split("|") for item in trans])
-        return [trans_dic.get(item) for item in filelst]
+
+def getTranscript(path):
+    ts_path = os.path.join(path, DEFAULT_TRANS_NM)
+    if os.path.exists(ts_path):
+        try:
+            with codecs.open(ts_path, "r", "utf-8") as f:
+                return dict([line.strip().split("|") for line in f.readlines()])
+        except ValueError as e:
+            print("[E] Try to get {}'s transcript file, failed.".format(path), e)
+            exit(1)
     else:
-        return []
+        return None
+
+
+def getStyle(path):
+    st_path = os.path.join(path, DEFAULT_STYLE_NM)
+    if os.path.exists(st_path):
+        try:
+            with codecs.open(st_path, "r", "utf-8") as f:
+                return [line.strip() for line in f.readlines()]
+        except ValueError as e:
+            print("[E] Try to get {}'s styles file, failed.".format(path), e)
+            exit(1)
+    print("[E] No styles file found for {}.".format(path))
+    exit(1)
+ 
+
+def getValidFiles(sub_dirs_path):
+    dirs_files_list = [set(os.listdir(dir_path)) for dir_path in sub_dirs_path]
+    return sorted(set.intersection(*dirs_files_list))
+
+
+def buildSingleConfig(path):
+    # path: static/data/EXPTYPE-EXPNAME
+    # where EXPTYPE := {MOS, ABX, CM},
+    #       EXPTYPE and EXPNAME are linked with a hyphen.
+    exp_type_name = os.path.basename(path)
+    exp_type, exp_name = exp_type_name.split("-")
+
+    exp_config = copy.deepcopy(DEFAULT_CONFIG)
+    exp_config["name"] = exp_name
+    exp_config["type"] = exp_type
+    exp_config["guide"] = getGuide(path, exp_type)
+
+    transcript_dict = getTranscript(path)
+    sub_dirs_path = getValidSubDirs(path)
+    files_list = getValidFiles(sub_dirs_path)
+    exp_config["tot_eps_num"] = 0
+    for file_nm in files_list:
+        exp_config["eps_list"].append({"ep": [{"src": os.path.join(dir_path, file_nm)}
+                                                for dir_path in sub_dirs_path]})
+        exp_config["tot_eps_num"] += 1
+    if transcript_dict is not None:
+        for idx, file_nm in enumerate(files_list):
+            exp_config["eps_list"][idx]["ts"] = transcript_dict.get(file_nm, "")
+    if exp_type == "MOS":
+        for ep_dict in exp_config["eps_list"]:
+            for audio in ep_dict["ep"]:
+                audio["eval"] = "fair"
+    elif exp_type == "ABX":
+        for ep_dict in exp_config["eps_list"]:
+            ep_dict["sel"] = "NP"
+    elif exp_type == "CM":
+        exp_config["valid_styles_list"] = getStyle(path)
+        for ep_dict in exp_config["eps_list"]:
+            for audio in ep_dict["ep"]:
+                # choose the first style as the default value.
+                audio["eval"] = exp_config["valid_styles_list"][0]
+    return exp_config
+
+
+def buildConfigList(root=DEFAULT_DATA_ROOT):
+    return [buildSingleConfig(dir_path) for dir_path in getValidSubDirs(root)]
+
 
 if __name__ == "__main__":
-
-    static_dir = './static'
-    if len(sys.argv) > 1:
-        static_dir = sys.argv[1]
-    data_dir = os.path.join(static_dir, 'data')
-    json_data = {"baseurl":data_dir, "exps":[]}
-    
-    for exp in os.listdir(data_dir):
-        if exp[0] == ".":
-            continue
-        exp_dic = {"path":exp}
-        exp_dic["styles"] = []
-        exp_dic["info"] = ""
-        exp_path = os.path.join(data_dir, exp)
-        ###
-        if exp[:4] == "sMOS":
-            for stl in os.listdir(exp_path):
-                if stl[0] == "." or stl in not_style_filename:
-                    continue
-                if stl != "standard":
-                    exp_dic["styles"].append(stl)
-        else:
-            for stl in os.listdir(exp_path):
-                if stl[0] == "." or stl in not_style_filename:
-                    continue
-                exp_dic["styles"].append(stl)
-        ###
-
-        ###
-        if(exp[:3] == "ABX" or exp[:3] == "MOS" or exp[:4] == "sMOS"):
-            if exp[:4] != "sMOS":
-                exp_dic["type"] = exp[:3]
-            else:
-                exp_dic["type"] = "sMOS"
-            exp_dic["files"] = []
-            style = exp_dic["styles"][0]
-            file_path = os.path.join(exp_path,style)
-            for fnm in os.listdir(file_path):
-                if fnm[0] == ".":
-                    continue
-                exp_dic["files"].append(fnm)
-        elif(exp[:2] == "CM"):
-            exp_dic["type"] = "CM"
-            exp_dic["files"] = []
-            for stl in exp_dic["styles"]:
-                file_path = os.path.join(exp_path,stl)
-                for fnm in os.listdir(file_path):
-                    if fnm[0] == ".":
-                        continue
-                    exp_dic["files"].append(stl + "/" + fnm)
-        elif(exp[:4] == "rABX"):
-            exp_dic["type"] = "rABX"
-            exp_dic["files"] = []
-            for stl in exp_dic["styles"]:
-                file_path = os.path.join(exp_path,stl)
-                tmp_lst = []
-                for fnm in os.listdir(file_path):
-                    if fnm[0] == ".":
-                        continue
-                    tmp_lst.append(os.path.join(data_dir, exp, stl, fnm))
-                exp_dic["files"].append(tmp_lst)
-        else:
-            pass
-        ###
-        info_path = os.path.join(exp_path, info_nm)
-        exp_dic["info"] = parse_info(info_path, exp_dic["type"])
-        transcript_path = os.path.join(exp_path, transcript_nm)
-        exp_dic["transcript"] = parse_transcript(transcript_path, exp_dic["files"])
-        json_data["exps"].append(exp_dic)
-
-    #json_str += str(json_data) + ";"
-
-    json_path = os.path.join(static_dir, "scripts/config.json")
-    with open(json_path,"w") as f:
-	    json.dump(json_data, f)
-    with open(json_path, "r") as f:
-        json_str = f.read()
-    js_path = json_path[:-2]
-    with open(js_path, "w") as f:
-        json_str = "var config = " + json_str
-        f.write(json_str)
+    config_obj = buildConfigList()
+    config_str = json.JSONEncoder().encode(config_obj)
+    config_str = "var config = " + config_str
+    with codecs.open(os.path.join(DEFAULT_SCRIPTS_ROOT, "config.js"), "w", "utf-8") as f:
+        f.write(config_str)
