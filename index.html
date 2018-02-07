@@ -2,7 +2,12 @@
 <head>
     <title>TTS Evaluation System</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+    <script
+    src="http://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+    <script
+    src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.min.js"></script>
     <link rel="stylesheet" href="static/styles/main.css">
 </head>
 
@@ -49,18 +54,14 @@
 
             <div v-if="cur_exp.type === 'MOS'">
                 <div class="aud_sel_wrapper" v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id-1].ep">
-                    <div class="audio_wrapper">
-                        <audio controls="controls" :src="audio.src"></audio>
-                    </div>
-                    <div class="select_wrapper">
-                        <select v-model="audio.eval">
-                            <option value="bad">bad</option>
-                            <option value="poor">poor</option>
-                            <option value="fair">fair</option>
-                            <option value="good">good</option>
-                            <option value="excellent">excellent</option>
-                        </select>
-                    </div>
+                    <audio class="audio_wrapper" controls="controls" :src="audio.src"></audio>
+                    <select class="select_wrapper" v-model="audio.eval">
+                        <option value="bad">bad</option>
+                        <option value="poor">poor</option>
+                        <option value="fair">fair</option>
+                        <option value="good">good</option>
+                        <option value="excellent">excellent</option>
+                    </select>
                 </div>
             </div>
 
@@ -68,7 +69,7 @@
                 <div class="aud_sel_wrapper">
                     <div class="audio_wrapper">
                         <template v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id-1].ep">
-                            <audio controls="controls" :src="audio.src"></audio>
+                            <audio style="width: 100%" controls="controls" :src="audio.src"></audio>
                         </template>
                     </div>
                     <div class="select_wrapper">
