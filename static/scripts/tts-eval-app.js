@@ -1,8 +1,3 @@
-var myHeading = document.querySelector("p");
-myHeading.onclick = function(){
-    this.style.color = getRandomColor();
-};
-
 var app = new Vue({
     el: "#tts-eval-app",
     data: {

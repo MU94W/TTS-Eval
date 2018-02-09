@@ -14,85 +14,86 @@
 
 <body>
 
-    <header>
-        <p>TTS</p>
-    </header>
-
     <div id="tts-eval-app">
+        <div id="header">TTS</div>
+        <div id="body">
         <div id="exp-sel-bar">
-            <div v-for="exp in exp_list">
-                <div class="exp-sel-button">
-                    <input type="radio" :value="exp" v-model="cur_exp">
-                    {{ exp.name }}
-                </div>
+            <select id="exp-selector" class="btn" v-model="cur_exp">
+                <option value="" disabled selected>请选择实验……</option>
+                <template v-for="exp in exp_list">
+                    <option :value="exp">{{ exp.type }} -  {{ exp.name }}</option>
+                </template>
+            </select>
+            <div id="exp-guide" v-if="cur_exp.name">
+                {{ cur_exp.guide }}
             </div>
         </div>
         <div id="ep-sel-bar" class="btn_wrapper">
-            <input class="btn" type="button" value="Prev" @click="prevEp">
-            <span class="btn" v-if="cur_exp.name">
-                {{ cur_exp.type }}
-                -
-                <select v-model="cur_exp.cur_ep_id">
+            <button class="btn" @click="prevEp">Prev</button>
+            <template class="btn" v-if="cur_exp.name">
+                <select class="btn" v-model="cur_exp.cur_ep_id">
                     <template v-for="id in cur_exp.tot_eps_num">
-                        <option :value="id">{{ id }}</option>
+                        <option :value="id">{{ id }} / {{ cur_exp.tot_eps_num }}</option>
                     </template>
                 </select>
-                / {{ cur_exp.tot_eps_num}}
-            </span>
-            <span class="btn" v-else>
-                ExpType - 0 / 0
-            </span>
-            <input class="btn" type="button" value="Next" @click="nextEp">
+            </template>
+            <button class="btn" @click="nextEp">Next</button>
         </div>
         <div id="exp-body">
-            <div id="exp-guide" class="box_info" v-if="cur_exp.name">
-                {{ cur_exp.guide }}
-            </div>
-            <div class="box_info" id="transcript" v-if="cur_exp.name">
-                Transcript:
-                <em>{{ cur_exp.eps_list[cur_exp.cur_ep_id-1].ts }}</em>
+            <div id="transcript" v-if="cur_exp.name">
+                {{ cur_exp.eps_list[cur_exp.cur_ep_id-1].ts }}
             </div>
 
-            <div v-if="cur_exp.type === 'MOS'">
-                <div class="aud_sel_wrapper" v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id-1].ep">
-                    <audio class="audio_wrapper" controls="controls" :src="audio.src"></audio>
-                    <select class="select_wrapper" v-model="audio.eval">
-                        <option value="bad">bad</option>
-                        <option value="poor">poor</option>
-                        <option value="fair">fair</option>
-                        <option value="good">good</option>
-                        <option value="excellent">excellent</option>
-                    </select>
+            <div class="audio_select_wrapper" v-if="cur_exp.type === 'MOS'">
+                <div class="audio_wrapper">
+                    <template v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id-1].ep">
+                        <div class="audio"><audio controls :src="audio.src"></audio></div>
+                    </template>
+                </div>
+                <div class="select_wrapper">
+                    <template v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id-1].ep">
+                        <div class="selector"><select class="btn" v-model="audio.eval">
+                            <option value="bad">bad</option>
+                            <option value="poor">poor</option>
+                            <option value="fair">fair</option>
+                            <option value="good">good</option>
+                            <option value="excellent">excellent</option></select>
+                        </div>
+                    </template>
                 </div>
             </div>
 
-            <div v-else-if="cur_exp.type === 'ABX'">
-                <div class="aud_sel_wrapper">
-                    <div class="audio_wrapper">
-                        <template v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id-1].ep">
-                            <audio style="width: 100%" controls="controls" :src="audio.src"></audio>
+            <div class="audio_select_wrapper" v-else-if="cur_exp.type === 'ABX'">
+                <div class="audio_wrapper">
+                    <template v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id-1].ep">
+                        <div class="audio"><audio controls :src="audio.src"></audio></div>
+                    </template>
+                </div>
+                <div class="select_wrapper">
+                    <div class="selector"><select class="btn" v-model="cur_exp.eps_list[cur_exp.cur_ep_id-1].sel">
+                        <template v-for="(audio, idx) in cur_exp.eps_list[cur_exp.cur_ep_id-1].ep">
+                            <option :value="audio.src">{{ convertNumToABC(idx) }}</option>
                         </template>
-                    </div>
-                    <div class="select_wrapper">
-                        <select v-model="cur_exp.eps_list[cur_exp.cur_ep_id-1].sel">
-                            <template v-for="(audio, idx) in cur_exp.eps_list[cur_exp.cur_ep_id-1].ep">
-                                <option :value="audio.src">{{ convertNumToABC(idx) }}</option>
-                            </template>
-                            <!-- 这里如果用 value="NP"，会出现不可预期的错误：value可能没有任何值 -->
-                            <option :value="defaultNP">NP</option>
-                        </select>
+                        <!-- 这里如果用 value="NP"，会出现不可预期的错误：value可能没有任何值 -->
+                        <option :value="defaultNP">NP</option></select>
                     </div>
                 </div>
             </div>
 
-            <div v-else-if="cur_exp.type === 'CM'">
-                <div class="aud_sel_wrapper" v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id-1].ep">
-                    <audio class="audio_wrapper" controls="controls" :src="audio.src"></audio>
-                    <select class="select_wrapper" v-model="audio.eval">
-                        <template v-for="style in cur_exp.valid_styles_list">
-                            <option :value="style">{{ style }}</option>
-                        </template>
-                    </select>
+            <div class="audio_select_wrapper" v-else-if="cur_exp.type === 'CM'">
+               <div class="audio_wrapper">
+                    <template v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id-1].ep">
+                        <div class="audio"><audio controls :src="audio.src"></audio></div>
+                    </template>
+                </div>
+                <div class="select_wrapper">
+                    <template v-for="audio in cur_exp.eps_list[cur_exp.cur_ep_id-1].ep">
+                        <div class="selector"><select class="btn" v-model="audio.eval">
+                            <template v-for="style in cur_exp.valid_styles_list">
+                                <option :value="style">{{ style }}</option>
+                            </template></select>
+                        </div>
+                    </template>
                 </div>
             </div>
 
@@ -104,9 +105,10 @@
 
         </div>
         <div id="submit-bar" class="btn_wrapper">
-            <input class="btn" type="button" value="Save" @click="saveResult">
-            <input class="btn" type="button" value="Submit" @click="sendResult">
+            <button class="btn" @click="saveResult">Save</button>
+            <button class="btn" @click="sendResult">Submit</button>
         </div>
+        </div><!-- div .body end -->
     </div>
 
     <script src="static/scripts/config.js"></script>
