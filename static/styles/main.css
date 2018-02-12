@@ -24,6 +24,12 @@ body {
     border-radius: 0px 0px 3px 3px;
 }
 
+#logo {
+    position: relative;
+    left: 140px;
+    top: -69px;
+}
+
 #body{
     display: flex;
     flex-direction: column;

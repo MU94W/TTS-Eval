@@ -1,7 +1,7 @@
 var app = new Vue({
     el: "#tts-eval-app",
     data: {
-        server: "http://localhost",
+        post_url: "/",
         exp_list: config,   // 使用config.js的配置
         defaultNP: "NP",
         cur_exp: {
@@ -65,7 +65,7 @@ var app = new Vue({
             saveText(JSON.stringify(this.exp_list), save_name);
         },
         sendResult: function(){
-            sendText(JSON.stringify(this.exp_list), this.server)
+            sendText(JSON.stringify(this.exp_list), this.post_url)
         }
     }
 })
