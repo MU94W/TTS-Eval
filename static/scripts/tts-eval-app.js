@@ -31,21 +31,21 @@ var app = new Vue({
     methods: {
         prevEp: function(){
             if (this.cur_exp.cur_ep_id > 1){
-                $("#transcript, .aud_sel_wrapper").fadeOut(250);
-                // $(".aud_sel_wrapper").slideToggle(250);
+                $("#transcript, .audio_select_wrapper").fadeOut(250);
+                // $(".audio_select_wrapper").slideToggle(250);
                 this.cur_exp.cur_ep_id -= 1;
-                $("#transcript, .aud_sel_wrapper").fadeIn(250);
-                // $(".aud_sel_wrapper").slideToggle(250);
+                $("#transcript, .audio_select_wrapper").fadeIn(250);
+                // $(".audio_select_wrapper").slideToggle(250);
             }
             return;
         },
         nextEp: function(){
             if (this.cur_exp.cur_ep_id < this.cur_exp.tot_eps_num){
-                $("#transcript, .aud_sel_wrapper").fadeOut(250);
-                // $(".aud_sel_wrapper").slideToggle(250);
+                $("#transcript, .audio_select_wrapper").fadeOut(250);
+                // $(".audio_select_wrapper").slideToggle(250);
                 this.cur_exp.cur_ep_id += 1;
-                $("#transcript, .aud_sel_wrapper").fadeIn(250);
-                // $(".aud_sel_wrapper").slideToggle(250);
+                $("#transcript, .audio_select_wrapper").fadeIn(250);
+                // $(".audio_select_wrapper").slideToggle(250);
             }
             return;
         },
