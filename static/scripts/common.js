@@ -25,8 +25,8 @@ var saveText = function(text, filename){
     var data_blob = new Blob([text], {type: 'application/json'});
     var url = URL.createObjectURL(data_blob);
     var a = document.createElement('a');
-    a.style = "display: none"
-    a.href = url
+    a.style = "display: none";
+    a.href = url;
     a.download = filename;
     document.body.appendChild(a);
     a.click();

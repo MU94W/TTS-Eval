@@ -3,6 +3,7 @@ import tornado.web
 import codecs
 import time
 import os
+import logging
 
 PORT = 8080
 
@@ -25,9 +26,10 @@ class TTSEvalHandler(tornado.web.RequestHandler):
 
     def post(self):
         self.set_header("Content-Type", "text/plain")
-        save_name = self.request.remote_ip.replace(".", "_") + "-" + time.strftime("%Y_%m_%_d_%H_%M_%S") + ".json"
-        with codecs.open(os.path.join(result_dir, save_name), "wb") as f:
-            f.write(self.request.body)
+        user_name, user_result = self.request.body.decode("utf-8").split("_sep_")
+        save_name = user_name + "-" + self.request.remote_ip.replace(".", "_") + "-" + time.strftime("%Y_%m_%_d_%H_%M_%S") + ".json"
+        with codecs.open(os.path.join(result_dir, save_name), "w", "utf-8") as f:
+            f.write(user_result)
         self.write("")
 
 
@@ -38,6 +40,13 @@ def make_app():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     app = make_app()
     app.listen(PORT)
-    tornado.ioloop.IOLoop.current().start()
+    logging.info("开始服务！")
+    try:
+        tornado.ioloop.IOLoop.current().start()
+    except KeyboardInterrupt:
+        logging.info("服务正常终止。")
+    except Exception as e:
+        logging.error(e)

@@ -62,10 +62,22 @@ var app = new Vue({
                             date_list[2] + "_" +
                             date_list[4].replace(/:/g, "_") +
                             ".json";
+            var name;
+            do {
+                name = prompt("请输入 姓名 或 昵称：");
+            // 必须输入
+            } while( name === "null" || name.length === 0 );
+            save_name = name + "_" + save_name;
             saveText(JSON.stringify(this.exp_list), save_name);
         },
         sendResult: function(){
-            sendText(JSON.stringify(this.exp_list), this.post_url)
+            var name;
+            do {
+                name = prompt("请输入 姓名 或 昵称：");
+            // 必须输入
+            } while( name === "null" || name.length === 0 );
+            send_text = name + "_sep_" + JSON.stringify(this.exp_list);
+            sendText(send_text, this.post_url);
         }
     }
 })
